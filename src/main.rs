@@ -1,4 +1,5 @@
 mod day1;
+mod day2;
 
 use std::fs::File;
 use std::io::prelude::*;
@@ -34,8 +35,10 @@ fn main() {
     drop(transfer);
 
     // Solve problems
-    if day == 1 {
-        day1::solve(&mut data);
+    match day {
+        1 => day1::solve(&mut data),
+        2 => day2::solve(&mut data),
+        _ => println!("Day {} is not implemented yet", day)
     }
 }
 
