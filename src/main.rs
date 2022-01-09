@@ -1,34 +1,41 @@
+mod day1;
+
+use std::fs::File;
+use std::io::prelude::*;
+use yaml_rust::YamlLoader;
 use curl::easy::{Easy, List};
 
 fn main() {
+    // Read config
+    let mut file = File::open("config.yaml").expect("Cannot open config.yaml");
+    let mut config_str = String::new();
+
+    file.read_to_string(&mut config_str).expect("Couldn't read config.yaml");
+
+    let config = YamlLoader::load_from_str(&config_str).unwrap();
+    let sesson_id = config[0]["session"].as_str().unwrap();
+    let day = config[0]["day"].as_i64().unwrap();
+
+    // Prepare input
     let mut headers = List::new();
-    headers.append("Cookie: session=53616c7465645f5f598d394b71e013a53dffdcaf219d3b0a5703e40be38845f15204acf20f0b9c9d6d81807cecfb54fb").unwrap();
+    headers.append(std::format!("Cookie: session={}", sesson_id).as_str()).unwrap();
 
     let mut easy = Easy::new();
-    easy.url("https://adventofcode.com/2021/day/1/input").unwrap();
+    easy.url(std::format!("https://adventofcode.com/2021/day/{}/input", day).as_str()).unwrap();
     easy.http_headers(headers).unwrap();
 
-    let mut sweep = Vec::<i32>::new();
-
+    let mut data = String::new();
     let mut transfer = easy.transfer();
-    transfer.write_function(|data| {
-        let data_str = String::from_utf8(data.to_vec()).unwrap();
-        sweep = data_str.split('\n').into_iter()
-            .filter_map(|v| v.parse::<i32>().ok())
-            .collect();
-        Ok(data.len())
+    transfer.write_function(|raw_data| {
+        data = String::from_utf8(raw_data.to_vec()).unwrap();
+        Ok(raw_data.len())
     }).unwrap();
     transfer.perform().unwrap();
     drop(transfer);
 
-    let mut counter = 0;
-    let mut prev = sweep[0];
-    for value in sweep {
-        if value > prev {
-            counter += 1;
-        }
-        prev = value;
+    // Solve problems
+    if day == 1 {
+        day1::solve(&mut data);
     }
-
-    println!("Answer: {}", counter);
 }
+
