@@ -3,6 +3,20 @@ pub fn solve(data: &mut String) {
         .filter_map(|v| v.parse::<i32>().ok())
         .collect();
 
+    // Part 1
+    let mut counter = 0;
+    let mut prev = sweep[0];
+    for value in &sweep {
+        if prev > *value {
+            counter += 1;
+        }
+
+        prev = *value;
+    }
+
+    println!("1. Answer: {}", counter);
+
+    // Part 2
     let mut counter = 0;
     let mut prev = 0;
     for (i, value) in sweep.iter().enumerate() {
@@ -18,6 +32,6 @@ pub fn solve(data: &mut String) {
         }
     }
 
-    println!("Answer: {}", counter);
+    println!("2. Answer: {}", counter);
 }
 

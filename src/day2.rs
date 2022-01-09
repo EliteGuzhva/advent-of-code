@@ -46,7 +46,8 @@ impl FromStr for Command {
 #[derive(Debug)]
 struct Position {
     x: i32,
-    y: i32
+    depth: i32,
+    aim: i32
 }
 
 pub fn solve(data: &mut String) {
@@ -54,15 +55,32 @@ pub fn solve(data: &mut String) {
         .filter_map(|v| Command::from_str(v).ok())
         .collect();
 
-    let mut position = Position{x: 0, y: 0};
-    for command in commands {
+    // Part 1
+    let mut position = Position{x: 0, depth: 0, aim: 0};
+    for command in &commands {
         match command.dir {
             Direction::FORWARD => position.x += command.value,
-            Direction::DOWN => position.y += command.value,
-            Direction::UP => position.y -= command.value
+            Direction::DOWN => position.depth += command.value,
+            Direction::UP => position.depth -= command.value
         }
     }
 
-    let answer = position.x * position.y;
-    println!("Answer: {:?}, {}", position, answer);
+    let answer = position.x * position.depth;
+    println!("1. Answer: {:?}, {}", position, answer);
+
+    // Part 2
+    let mut position = Position{x: 0, depth: 0, aim: 0};
+    for command in &commands {
+        match command.dir {
+            Direction::FORWARD => {
+                position.x += command.value;
+                position.depth += command.value * position.aim;
+            },
+            Direction::DOWN => position.aim += command.value,
+            Direction::UP => position.aim -= command.value
+        }
+    }
+
+    let answer = position.x * position.depth;
+    println!("2. Answer: {:?}, {}", position, answer);
 }
