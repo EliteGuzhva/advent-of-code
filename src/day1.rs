@@ -1,37 +1,17 @@
-pub fn solve(data: &mut String) {
-    let sweep: Vec<i32> = data.split('\n').into_iter()
-        .filter_map(|v| v.parse::<i32>().ok())
-        .collect();
-
-    // Part 1
-    let mut counter = 0;
-    let mut prev = sweep[0];
-    for value in &sweep {
-        if prev > *value {
-            counter += 1;
-        }
-
-        prev = *value;
-    }
-
-    println!("1. Answer: {}", counter);
-
-    // Part 2
-    let mut counter = 0;
-    let mut prev = 0;
-    for (i, value) in sweep.iter().enumerate() {
-        if i < 3 {
-            prev += *value;
-        } else {
-            let cur = prev - sweep[i - 3] + *value;
-            if cur > prev {
-                counter += 1;
-            }
-
-            prev = cur;
-        }
-    }
-
-    println!("2. Answer: {}", counter);
+fn descending_window(size: usize, sweep: &Vec<u32>) -> usize {
+    sweep
+        .windows(size)
+        .filter(|window| window[0] < window[size - 1])
+        .collect::<Vec<&[u32]>>()
+        .len()
 }
 
+pub fn solve(data: &mut String) {
+    let sweep = aoc::input_to_vec::<u32>(data);
+
+    let res1 = descending_window(2, &sweep);
+    println!("Part 1: {}", res1);
+
+    let res2 = descending_window(4, &sweep);
+    println!("Part 2: {}", res2);
+}

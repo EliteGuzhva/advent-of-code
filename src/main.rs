@@ -1,5 +1,6 @@
 mod day1;
 mod day2;
+mod day3;
 
 use std::fs::File;
 use std::io::prelude::*;
@@ -38,6 +39,7 @@ fn main() {
     match day {
         1 => day1::solve(&mut data),
         2 => day2::solve(&mut data),
+        3 => day3::solve(&mut data),
         _ => println!("Day {} is not implemented yet", day)
     }
 }

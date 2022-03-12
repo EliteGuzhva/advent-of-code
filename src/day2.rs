@@ -1,11 +1,10 @@
 use std::str::FromStr;
 
-
 #[derive(Debug)]
 enum Direction {
     FORWARD,
     DOWN,
-    UP
+    UP,
 }
 
 impl FromStr for Direction {
@@ -16,7 +15,7 @@ impl FromStr for Direction {
             "forward" => Ok(Direction::FORWARD),
             "down" => Ok(Direction::DOWN),
             "up" => Ok(Direction::UP),
-            _ => Err(())
+            _ => Err(()),
         }
     }
 }
@@ -24,7 +23,7 @@ impl FromStr for Direction {
 #[derive(Debug)]
 struct Command {
     dir: Direction,
-    value: i32
+    value: i32,
 }
 
 impl FromStr for Command {
@@ -36,10 +35,10 @@ impl FromStr for Command {
         }
 
         let data: Vec<&str> = s.split(' ').collect();
-        let dir = Direction::from_str(data[0]).unwrap();
+        let dir = data[0].parse::<Direction>().unwrap();
         let value = data[1].parse::<i32>().unwrap();
 
-        Ok(Command{dir, value})
+        Ok(Command { dir, value })
     }
 }
 
@@ -47,40 +46,62 @@ impl FromStr for Command {
 struct Position {
     x: i32,
     depth: i32,
-    aim: i32
+    aim: i32,
+}
+
+impl Position {
+    fn new() -> Position {
+        Position {
+            x: 0,
+            depth: 0,
+            aim: 0,
+        }
+    }
+
+    fn answer(self) -> i32 {
+        self.x * self.depth
+    }
 }
 
 pub fn solve(data: &mut String) {
-    let commands: Vec<Command> = data.split('\n').into_iter()
-        .filter_map(|v| Command::from_str(v).ok())
-        .collect();
+    let commands = aoc::input_to_vec::<Command>(data);
 
-    // Part 1
-    let mut position = Position{x: 0, depth: 0, aim: 0};
-    for command in &commands {
-        match command.dir {
-            Direction::FORWARD => position.x += command.value,
-            Direction::DOWN => position.depth += command.value,
-            Direction::UP => position.depth -= command.value
-        }
-    }
-
-    let answer = position.x * position.depth;
-    println!("1. Answer: {:?}, {}", position, answer);
-
-    // Part 2
-    let mut position = Position{x: 0, depth: 0, aim: 0};
-    for command in &commands {
-        match command.dir {
-            Direction::FORWARD => {
-                position.x += command.value;
-                position.depth += command.value * position.aim;
+    let res1 = commands
+        .iter()
+        .fold(Position::new(), |pos, c| match c.dir {
+            Direction::FORWARD => Position {
+                x: pos.x + c.value,
+                ..pos
             },
-            Direction::DOWN => position.aim += command.value,
-            Direction::UP => position.aim -= command.value
-        }
-    }
+            Direction::DOWN => Position {
+                depth: pos.depth + c.value,
+                ..pos
+            },
+            Direction::UP => Position {
+                depth: pos.depth - c.value,
+                ..pos
+            },
+        })
+        .answer();
+    println!("Part 1: {}", res1);
 
-    let answer = position.x * position.depth;
-    println!("2. Answer: {:?}, {}", position, answer);
+    let res2 = commands
+        .iter()
+        .fold(Position::new(), |pos, c| match c.dir {
+            Direction::FORWARD => Position {
+                x: pos.x + c.value,
+                depth: pos.depth + c.value * pos.aim,
+                ..pos
+            },
+            Direction::DOWN => Position {
+                aim: pos.aim + c.value,
+                ..pos
+            },
+            Direction::UP => Position {
+                aim: pos.aim - c.value,
+                ..pos
+            },
+        })
+        .answer();
+    println!("Part 2: {}", res2);
 }
