@@ -1,43 +1,21 @@
-// use std::str::FromStr;
-
 pub fn solve(data: &mut String) {
-    // *data = String::from_str("1000\n1101\n0111\n1111\n").unwrap();
-
-    let numbers: Vec<&str> = data.lines().collect();
+    let numbers = aoc::input_to_vec2(data, |c| char::to_digit(c, 2));
     let number_length = numbers[0].len();
+    let half = numbers.len() as u32 / 2;
 
-    let mut num_ones: Vec<i32> = Vec::new();
-    num_ones.resize(number_length, 0);
-
-    for number in &numbers {
-        let mut i = 0;
-        for c in number.chars().into_iter() {
-            if c == '1' {
-                num_ones[i] += 1;
-            }
-
-            i += 1;
+    let mut sums = vec![0; number_length];
+    numbers.iter().for_each(|number| {
+        for i in 0..number_length {
+            sums[i] += number[i];
         }
-    }
+    });
 
-    let mut gamma = String::new();
-    let mut epsilon = String::new();
+    let gamma: u32 = sums
+        .into_iter()
+        .map(|d| if d > half { 1 } else { 0 })
+        .fold(0, |res, digit| (res << 1) + digit);
 
-    for o in num_ones {
-        if o > (number_length / 2).try_into().unwrap() {
-            gamma += "1";
-            epsilon += "0";
-        } else {
-            gamma += "0";
-            epsilon += "1";
-        }
-    }
-
-    println!("{}\n{}", gamma, epsilon);
-
-    let g = i32::from_str_radix(&gamma, 2).unwrap();
-    let e = i32::from_str_radix(&epsilon, 2).unwrap();
-    let res = g * e;
-
-    println!("{} * {} = {}", g, e, res);
+    let epsilon = !gamma << 32 - number_length >> 32 - number_length;
+    let res = gamma * epsilon;
+    println!("Part 1: {}", res);
 }
